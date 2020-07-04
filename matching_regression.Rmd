@@ -1,0 +1,158 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Effects of False Positives on Inference for Linked Datasets  
+
+## Overview
+```{r, echo = FALSE}
+set.seed(0)
+b0 = 0
+b1 = 2
+pop = 100000
+eps = rnorm(pop)
+pop_x = rnorm(pop)
+pop_y = b0 + b1 * pop_x + eps
+df = data.frame(x=pop_x, y=pop_y)
+```
+
+Record linkage enables disparate patient level datasets to be combined and use for analysis. This is particularly useful for analyses which would be difficult or impossible to conduct through traditional data capture methods. Linkage is usually done on a variety of personally identifiable information (PII), such as name, date of birth, zip code, etc.
+
+One potential problem relates to the methods which are used to link datasets. When false matches occur, you introduce noise into your data in a unique way. Quantifying the precision and recall of various linkage methods is vital to understanding the quality of data, and it is especially important in privacy preserving contexts where you are not able to look at the underlying PII to inspect potential errors.
+
+Here we'll demonstrate the effects of various precision levels in a basic linear regression setting.
+
+## Example
+We'll use a simple case with the following model representing the true population behavior. To ground this in a real [contrived] problem, let's say we want to predict someone's weight ($y$) given their height ($x$), and we've standardized the measurements beforehand. The centered nature of the variables will make further explanations easier.   
+$y_i = \beta_0+\beta_1x_i+\epsilon_i$  
+$\beta_0=0$, $\beta_1=4$, population size = $100000$, $x \stackrel{iid} \sim  N(0,1)$, $\epsilon \stackrel{iid}\sim  N(0,1)$  
+
+### Population
+Our population will be 100,000 values which follow the model above. 
+```{r}
+plot(x = df$x, y = df$y, pch = 20, cex = .2, xlab = 'x', ylab = 'y', main = 'Population Distribution and Trend Line')
+abline(b0, b1, col = 'red')
+```
+
+### Linked Sampling and Linear Example
+Let's say we have one dataset that contains a sample of the $y$ variables (weight), and a separate dataset that contains a sample of the $x$ variables (height), which we linked based on some privacy preserving ID.
+
+Assume we link these datasets together to create a combined sample of 1000 records out of  the population, and our linkage method provides a precision of 0.95. This means that 950 of the records will be correct, while 50 of the records will have a $y$ matched to the wrong $x$ at random. Additionally, I'll be sampling without replacement which technically breaks some independence assumptions, but the effect should be minimal at larger scales and this method makes the explanations more straightforward and the computation much faster once we do simulations. 
+
+There is a whole other discussion on the recall of the linkage and potential biases there, as well as the distribution of mismatches (mismatches are likely not random, and people who share the same name, date or birth, etc may have correlated responses), but it is out of scope for now. 
+
+Now we'll fit a linear regression model to this sample.
+```{r}
+precision = 0.95
+n = 1000
+
+get_sample = function(data, prec, n){
+  pop_size = dim(data)[1]
+  num_correct = round(prec*n)
+  num_incorrect = round((1-prec)*n)
+  # if no mismatches, just get a standard random sample
+  if (num_incorrect==0) { 
+    sample = data[sample(seq(1:pop_size),n),]
+  } else {
+    # draw num_correct matches, and one set each of num_incorrect for x and y
+    sample_indices = sample(seq(1: pop_size), num_correct + 2*num_incorrect)
+    correct_matches = cbind(data[sample_indices[1:num_correct],], match = 1)
+    # get incorrect matches
+    x = data[sample_indices[(num_correct+1):(num_correct+num_incorrect)],1]
+    y = data[sample_indices[(num_correct+num_incorrect+1):(num_correct+2*num_incorrect)],2:dim(data)[2]]
+    incorrect_matches = cbind(x,y,match =0)
+    sample = rbind(correct_matches, incorrect_matches)
+  }
+  return(sample)
+}
+
+s = get_sample(df,precision, n)
+plot(s$x, s$y,xlab = 'x', ylab = 'y', main = 'Linked Sample and Fitted Line' )
+fit = lm(y~x, s)
+abline(fit, col = 'blue')
+b0_hat = fit$coefficients[1]
+b1_hat = fit$coefficients[2]
+summary(fit)
+par(mfrow=c(2,2))
+plot(fit)
+confint(fit)
+```
+A few things stand out:  
+- Our estimate for $\beta_1$ is below the true value ($2$).   
+- Even the 95% confidence interval's upper bound is below the true value. However, the QQ plot shows a heavy tailed distribution, which may widen the true interval.  
+- The data scatter plot and residual plot show a few outliers, and the Scale-Location and Cook's Distance plot show a few potential problem points as well.  
+
+Before we dive into corrections, let's first examine what's actually going on.
+
+#### Noise Layer vs Signal Layer
+
+When we add mismatched data to our sample, we're effectively layering on a random noise model (if we assume the false positives happen at random) which follows $y_i = \epsilon', \epsilon'\sim N(0,5)$ which doesn't vary with $x$. Below we'll plot the correct matches in grey, and the incorrect ones in green. The true trend is in red, while our fitted trend is in blue. The dotted green line represends the trend of the mismatched data. Expectedly, it's slope is near 0.
+
+```{r}
+plot(s[s$match==1,1], s[s$match==1,2], pch= 20, col = 'gray', xlab = 'x', ylab = 'y', main = 'Plot of Correct and Incorrect Matches')
+points(s[s$match==0,1], s[s$match==0,2], col = 'green', pch = 20)
+noise_fit = lm(s[s$match==0,2]~ s[s$match==0,1])
+abline(b0, b1, col = 'red')
+abline(noise_fit$coefficients[1],noise_fit$coefficients[2], col = 'green', lty=2)
+abline(b0_hat,b1_hat, col = 'blue')
+```
+
+
+
+### Bias
+This noise has the effect of dampening the real signal, and leads to a bias where the coefficients are smaller in absolute value than they should be. You can think of this visually as the the green line rotating blue line from where it should be (the red line. This is also why centering all the variables helps), similar to how influential points can move the fitted line. 
+
+We can see the systematic effect of this by simulating 1000 samples. The red line is again the true trend, and the blue lines are the result of each of the 500 runs.
+
+```{r}
+plot(x = df$x, y = df$y, pch = 20, cex = .2, xlab = 'x', ylab = 'y', main = 'Results of 500 Simulations')
+simulations = sapply(seq(1:1000), function(x){
+  s = get_sample(df,precision, n)
+  fit = lm(y~x, s)
+  b0_hat = fit$coefficients[1]
+  b1_hat = fit$coefficients[2]
+  abline(fit, col = rgb(red = 0, green = 0, blue = 0.5, alpha = 0.03))
+  return(c(b0_hat,b1_hat))
+  
+})
+abline(b0, b1, col = 'red')
+```
+
+Looking at the results, we see that the average $\hat \beta_1$ was `r mean(simulations[2,])`, and majority of runs (`r sum(simulations[2,]<2)`) were below the true value, indicating a bias in our estimator. 
+```{r}
+c(quantile(simulations[2,],.025),quantile(simulations[2,],.975))
+```
+
+This comes as no surprise given we've clearly adding values into our data which don't follow the true model. Since the number of mismatched records scales linearly with sample size, the bias remains constant no matter the sample size.
+
+#### Sample Size 
+Since the number of mismatched records scales linearly with sample size, increasing the sample size does not help this issue. In fact, since the estimator is biased, the variability around the incorrect estimate just gets reduced.
+
+### Correcting the Issue
+A biased estimator naturally leads to trying to determine what the bias is. We'll consider two scenarios, one where the number of false positives is known, and one where it isn't.
+
+#### Known Precision
+If, somehow, the precision is known and so the number of false positives can be determined, there is a simple correction that can be done. By dividing the estimates by the precision, we
+```{r}
+mean(simulations[2,])/precision
+c(quantile(simulations[2,]/precision,.025),quantile(simulations[2,]/precision,.975))
+
+```
+
+
+#### Unknown Precision
+Without knowing the precision, the problem is like an outlier/influential point problems.
+
+#### Upside - small effects, not wrong effects  
+### Inaccurate Estimations  
+### Influential Points and Estimation  
+### Weighted Least Squares  
+### Correction Factor  
+#### Two Models Approach  
+#### High Dimensions
+#### Quadratic Example  
+### Correction Theory and Analysis  
+#### CIs  
+#### Effective Sample Size  
+### Assumptions  
