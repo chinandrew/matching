@@ -8,6 +8,7 @@ output: html_notebook
 ## Overview
 ```{r, echo = FALSE}
 set.seed(0)
+require(MASS)
 b0 = 0
 b1 = 2
 pop = 100000
@@ -24,7 +25,7 @@ One potential problem relates to the methods which are used to link datasets. Wh
 Here we'll demonstrate the effects of various precision levels in a basic linear regression setting.
 
 ## Example
-We'll use a simple case with the following model representing the true population behavior. To ground this in a real [contrived] problem, let's say we want to predict someone's weight ($y$) given their height ($x$), and we've standardized the measurements beforehand. The centered nature of the variables will make further explanations easier.   
+We'll use a simple case with the following model representing the true population behavior. To ground this in a real [contrived] problem, let's say we want to predict someone's weight ($y$) given their height ($x$). We'll work in a centered universe to make certain demonstrations simpler, and will continue to center the samples we draw from this population.   
 $y_i = \beta_0+\beta_1x_i+\epsilon_i$  
 $\beta_0=0$, $\beta_1=4$, population size = $100000$, $x \stackrel{iid} \sim  N(0,1)$, $\epsilon \stackrel{iid}\sim  N(0,1)$  
 
@@ -59,11 +60,12 @@ get_sample = function(data, prec, n){
     sample_indices = sample(seq(1: pop_size), num_correct + 2*num_incorrect)
     correct_matches = cbind(data[sample_indices[1:num_correct],], match = 1)
     # get incorrect matches
-    x = data[sample_indices[(num_correct+1):(num_correct+num_incorrect)],1]
-    y = data[sample_indices[(num_correct+num_incorrect+1):(num_correct+2*num_incorrect)],2:dim(data)[2]]
-    incorrect_matches = cbind(x,y,match =0)
+    incorrect_x = data[sample_indices[(num_correct+1):(num_correct+num_incorrect)],1]
+    incorrect_y = data[sample_indices[(num_correct+num_incorrect+1):(num_correct+2*num_incorrect)],2:dim(data)[2]]
+    incorrect_matches = cbind(x=incorrect_x, y=incorrect_y, match =0)
     sample = rbind(correct_matches, incorrect_matches)
   }
+  sample[,1:2]= scale(sample[,1:2], center = TRUE, scale = FALSE)
   return(sample)
 }
 
@@ -79,15 +81,15 @@ plot(fit)
 confint(fit)
 ```
 A few things stand out:  
-- Our estimate for $\beta_1$ is below the true value ($2$).   
-- Even the 95% confidence interval's upper bound is below the true value. However, the QQ plot shows a heavy tailed distribution, which may widen the true interval.  
+- Our estimate for $\beta_1$ is below the true population parameter ($2$).   
+- Even the 95% confidence interval's upper bound is below the population. However, the QQ plot shows a heavy tailed distribution, which may widen the true interval.  
 - The data scatter plot and residual plot show a few outliers, and the Scale-Location and Cook's Distance plot show a few potential problem points as well.  
 
 Before we dive into corrections, let's first examine what's actually going on.
 
 #### Noise Layer vs Signal Layer
 
-When we add mismatched data to our sample, we're effectively layering on a random noise model (if we assume the false positives happen at random) which follows $y_i = \epsilon', \epsilon'\sim N(0,5)$ which doesn't vary with $x$. Below we'll plot the correct matches in grey, and the incorrect ones in green. The true trend is in red, while our fitted trend is in blue. The dotted green line represends the trend of the mismatched data. Expectedly, it's slope is near 0.
+When we add mismatched data to our sample, we're effectively layering on a random noise model (if we assume the false positives happen at random) which follows $y_i = \epsilon', \epsilon'\sim N(0,5)$ which doesn't vary with $x$. Below we'll plot the correct matches in grey, and the incorrect ones in green. The population trend is in red, while our fitted trend is in blue. The dotted green line represends the trend of the mismatched data. Expectedly, it's slope is near 0.
 
 ```{r}
 plot(s[s$match==1,1], s[s$match==1,2], pch= 20, col = 'gray', xlab = 'x', ylab = 'y', main = 'Plot of Correct and Incorrect Matches')
@@ -103,12 +105,12 @@ abline(b0_hat,b1_hat, col = 'blue')
 ### Bias
 This noise has the effect of dampening the real signal, and leads to a bias where the coefficients are smaller in absolute value than they should be. You can think of this visually as the the green line rotating blue line from where it should be (the red line. This is also why centering all the variables helps), similar to how influential points can move the fitted line. 
 
-We can see the systematic effect of this by simulating 1000 samples. The red line is again the true trend, and the blue lines are the result of each of the 500 runs.
+We can see the systematic effect of this by simulating 1000 samples. The red line is again the population trend, and the blue lines are the result of each of the 500 runs.
 
 ```{r}
-plot(x = df$x, y = df$y, pch = 20, cex = .2, xlab = 'x', ylab = 'y', main = 'Results of 500 Simulations')
+plot(x = df$x, y = df$y, pch = 20, cex = .2, xlab = 'x', ylab = 'y', main = 'Results of 1000 Simulations')
 simulations = sapply(seq(1:1000), function(x){
-  s = get_sample(df,precision, n)
+  s = get_sample(df, precision, n)
   fit = lm(y~x, s)
   b0_hat = fit$coefficients[1]
   b1_hat = fit$coefficients[2]
@@ -117,42 +119,86 @@ simulations = sapply(seq(1:1000), function(x){
   
 })
 abline(b0, b1, col = 'red')
+c(quantile(simulations[2,],.025),avg = mean(simulations[2,]),quantile(simulations[2,],.975))
 ```
 
-Looking at the results, we see that the average $\hat \beta_1$ was `r mean(simulations[2,])`, and majority of runs (`r sum(simulations[2,]<2)`) were below the true value, indicating a bias in our estimator. 
-```{r}
-c(quantile(simulations[2,],.025),quantile(simulations[2,],.975))
-```
+Looking at the results, we see that the average $\hat \beta_1$ was `r mean(simulations[2,])`, and majority of runs (`r sum(simulations[2,]<2)`) were below the true parameter, indicating a bias in our estimator. 
 
 This comes as no surprise given we've clearly adding values into our data which don't follow the true model. Since the number of mismatched records scales linearly with sample size, the bias remains constant no matter the sample size.
 
-#### Sample Size 
-Since the number of mismatched records scales linearly with sample size, increasing the sample size does not help this issue. In fact, since the estimator is biased, the variability around the incorrect estimate just gets reduced.
 
 ### Correcting the Issue
-A biased estimator naturally leads to trying to determine what the bias is. We'll consider two scenarios, one where the number of false positives is known, and one where it isn't.
-
-#### Known Precision
-If, somehow, the precision is known and so the number of false positives can be determined, there is a simple correction that can be done. By dividing the estimates by the precision, we
-```{r}
-mean(simulations[2,])/precision
-c(quantile(simulations[2,]/precision,.025),quantile(simulations[2,]/precision,.975))
-
-```
+A biased estimator naturally leads to trying to determine what the bias is. We'll consider two scenarios, one where the number of false positives is unknown, and one where it isn't.
 
 
 #### Unknown Precision
-Without knowing the precision, the problem is like an outlier/influential point problems.
+A much more likely scenario is that the precision is unknown, in which case the problem is like an outlier/influential point problems. Real outliers are hard to distinguish from false positives, and it is difficult to conduct any investigation into potential outliers, but that's the price you pay when linking data. We'll try a few standard approaches to this.
 
+##### Cook's Distance
+Here we'll use Cook's distance to try to remove influential points. If we have some prior knowledge of the approximate precision, we can expect to remove a few dozen points. This method won't capture all the false positives since some will surely look in line with the trend, and therefore we will still have some bias. One possible approach, at least in this controlled example, could be to use the cutoff which yields the largest coefficient. Below we show the resulting estimates using various cutoffs (by removing fixed numbers of values instead of values over a threshold for simplicity), as well as the simulation results for the "best" cutoff. Using this method, we're much closer to the true value than before, and our confidence intervals are capturing it as well.
+
+```{r}
+cook = function(cutoff) {
+  cooks_simulations = sapply(seq(1:100), function(x){
+    s = get_sample(df, precision, n)
+    initial_fit = lm(y~x, s)
+    s_cook = s[cooks.distance(initial_fit)<=sort(cooks.distance(initial_fit))[cutoff],]
+    fit = lm(y~x, s_cook)
+    b0_hat = fit$coefficients[1]
+    b1_hat = fit$coefficients[2]
+    return(c(b0_hat,b1_hat, confint(fit)[2,]))
+  })
+  return(c(
+    quantile(cooks_simulations[2,],.025), 
+    avg = mean(cooks_simulations[2,]),
+    quantile(cooks_simulations[2,],.975),
+    mean(cooks_simulations[3,]),
+    mean(cooks_simulations[4,])))
+}
+estimates = sapply(seq(900,1000,10), cook)
+colnames(estimates) =seq(900,1000,10)
+estimates
+```
+
+```{r}
+plot(x = df$x, y = df$y, pch = 20, cex = .2, xlab = 'x', ylab = 'y', main = "Results of 1000 Simulations with Cook's distance correction")
+cooks_simulations = sapply(seq(1:1000), function(x){
+  s = get_sample(df, precision, n)
+  initial_fit = lm(y~x, s)
+  s_cook = s[cooks.distance(initial_fit)<=sort(cooks.distance(initial_fit))[980],]
+  fit = lm(y~x, s_cook)
+  b0_hat = fit$coefficients[1]
+  b1_hat = fit$coefficients[2]
+  abline(fit, col = rgb(red = 0, green = 0, blue = 0.5, alpha = 0.03))
+  return(c(b0_hat,b1_hat))
+})
+abline(b0, b1, col = 'red')
+```
+##### Robust Regression
+Next we'll use robust regression, implemented as `rlm()` in R (versus ordinary least squares used in `lm()`). Since we're still using all the data, we're still expecting to generally underestimate the mean. Similar to Cook's distance, we're doing much better than OLS and with confidence intervals beginning to capture the true parameter. A similar approach would be weighted least squares. My suspicion is that these approaches are slightly worse than the previous approach because they maintain all false positives and try to minimize their effect, as opposed to attemping to remove the false positives completely. In practice, I'm not sure there's a meaningful difference.
+
+```{r}
+plot(x = df$x, y = df$y, pch = 20, cex = .2, xlab = 'x', ylab = 'y', main = 'Results of 1000 Simulations with Robust Regression')
+robust_simulations = sapply(seq(1:1000), function(x){
+  s = get_sample(df, precision, n)
+  fit = rlm(y~x, s)
+  b0_hat = fit$coefficients[1]
+  b1_hat = fit$coefficients[2]
+  abline(fit, col = rgb(red = 0, green = 0, blue = 0.5, alpha = 0.03))
+  return(c(b0_hat,b1_hat))
+})
+abline(b0, b1, col = 'red')
+c(quantile(robust_simulations[2,],.025),avg = mean(robust_simulations[2,]) ,quantile(robust_simulations[2,],.975))
+
+```
+
+#### Known Precision
+If, somehow, the precision is known and so the number of false positives can be determined, there is a simple correction that can be done. By dividing the estimates by the precision, we get the right answer. This intuitively makes sense because we've "dampened" the true signal with the random noise, and if we know how severe the noise is, we can scale the signal to it's real value. This comes at the expense of a wider confidence interval, as the standard errors are also divided by 0.95.
+```{r}
+c(quantile(simulations[2,]/precision,.025), avg=mean(simulations[2,])/precision,quantile(simulations[2,]/precision,.975))
+```
+#### Theory and Analysis  
+#### High Dimensions  
+#### Quadratic Example    
 #### Upside - small effects, not wrong effects  
-### Inaccurate Estimations  
-### Influential Points and Estimation  
-### Weighted Least Squares  
-### Correction Factor  
-#### Two Models Approach  
-#### High Dimensions
-#### Quadratic Example  
-### Correction Theory and Analysis  
-#### CIs  
 #### Effective Sample Size  
-### Assumptions  
