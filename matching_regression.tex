@@ -1,0 +1,533 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={R Notebook},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{R Notebook}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{effects-of-false-positives-on-inference-for-linked-datasets}{%
+\section{Effects of False Positives on Inference for Linked
+Datasets}\label{effects-of-false-positives-on-inference-for-linked-datasets}}
+
+\hypertarget{overview}{%
+\subsection{Overview}\label{overview}}
+
+\begin{verbatim}
+## Loading required package: MASS
+\end{verbatim}
+
+Record linkage enables disparate patient level datasets to be combined
+and use for analysis. This is particularly useful for analyses which
+would be difficult or impossible to conduct through traditional data
+capture methods. Linkage is usually done on a variety of personally
+identifiable information (PII), such as name, date of birth, zip code,
+etc.
+
+One potential problem relates to the methods which are used to link
+datasets. When false matches occur, you introduce noise into your data
+in a unique way. Quantifying the precision and recall of various linkage
+methods is vital to understanding the quality of data, and it is
+especially important in privacy preserving contexts where you are not
+able to look at the underlying PII to inspect potential errors.
+
+Here we'll demonstrate the effects of various precision levels in a
+basic linear regression setting.
+
+\hypertarget{example}{%
+\subsection{Example}\label{example}}
+
+We'll use a simple case with the following model representing the true
+population behavior. To ground this in a real {[}contrived{]} problem,
+let's say we want to predict someone's weight (\(y\)) given their height
+(\(x\)). We'll work in a centered universe to make certain
+demonstrations simpler, and will continue to center the samples we draw
+from this population.\\
+\(y_i = \beta_0+\beta_1x_i+\epsilon_i\)\\
+\(\beta_0=0\), \(\beta_1=4\), population size = \(100000\),
+\(x \stackrel{iid} \sim N(0,1)\), \(\epsilon \stackrel{iid}\sim N(0,1)\)
+
+\hypertarget{population}{%
+\subsubsection{Population}\label{population}}
+
+Our population will be 100,000 values which follow the model above.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ df}\OperatorTok{$}\NormalTok{x, }\DataTypeTok{y =}\NormalTok{ df}\OperatorTok{$}\NormalTok{y, }\DataTypeTok{pch =} \DecValTok{20}\NormalTok{, }\DataTypeTok{cex =} \FloatTok{.2}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{'x'}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{'y'}\NormalTok{, }\DataTypeTok{main =} \StringTok{'Population Distribution and Trend Line'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(b0, b1, }\DataTypeTok{col =} \StringTok{'red'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\hypertarget{linked-sampling-and-linear-example}{%
+\subsubsection{Linked Sampling and Linear
+Example}\label{linked-sampling-and-linear-example}}
+
+Let's say we have one dataset that contains a sample of the \(y\)
+variables (weight), and a separate dataset that contains a sample of the
+\(x\) variables (height), which we linked based on some privacy
+preserving ID.
+
+Assume we link these datasets together to create a combined sample of
+1000 records out of the population, and our linkage method provides a
+precision of 0.95. This means that 950 of the records will be correct,
+while 50 of the records will have a \(y\) matched to the wrong \(x\) at
+random. Additionally, I'll be sampling without replacement which
+technically breaks some independence assumptions, but the effect should
+be minimal at larger scales and this method makes the explanations more
+straightforward and the computation much faster once we do simulations.
+
+There is a whole other discussion on the recall of the linkage and
+potential biases there, as well as the distribution of mismatches
+(mismatches are likely not random, and people who share the same name,
+date or birth, etc may have correlated responses), but it is out of
+scope for now.
+
+Now we'll fit a linear regression model to this sample.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{precision =}\StringTok{ }\FloatTok{0.95}
+\NormalTok{n =}\StringTok{ }\DecValTok{1000}
+
+\NormalTok{get_sample =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(data, prec, n)\{}
+\NormalTok{  pop_size =}\StringTok{ }\KeywordTok{dim}\NormalTok{(data)[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  num_correct =}\StringTok{ }\KeywordTok{round}\NormalTok{(prec}\OperatorTok{*}\NormalTok{n)}
+\NormalTok{  num_incorrect =}\StringTok{ }\KeywordTok{round}\NormalTok{((}\DecValTok{1}\OperatorTok{-}\NormalTok{prec)}\OperatorTok{*}\NormalTok{n)}
+  \CommentTok{# if no mismatches, just get a standard random sample}
+  \ControlFlowTok{if}\NormalTok{ (num_incorrect}\OperatorTok{==}\DecValTok{0}\NormalTok{) \{ }
+\NormalTok{    sample =}\StringTok{ }\NormalTok{data[}\KeywordTok{sample}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\NormalTok{pop_size),n),]}
+\NormalTok{  \} }\ControlFlowTok{else}\NormalTok{ \{}
+    \CommentTok{# draw num_correct matches, and one set each of num_incorrect for x and y}
+\NormalTok{    sample_indices =}\StringTok{ }\KeywordTok{sample}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\StringTok{ }\NormalTok{pop_size), num_correct }\OperatorTok{+}\StringTok{ }\DecValTok{2}\OperatorTok{*}\NormalTok{num_incorrect)}
+\NormalTok{    correct_matches =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(data[sample_indices[}\DecValTok{1}\OperatorTok{:}\NormalTok{num_correct],], }\DataTypeTok{match =} \DecValTok{1}\NormalTok{)}
+    \CommentTok{# get incorrect matches}
+\NormalTok{    incorrect_x =}\StringTok{ }\NormalTok{data[sample_indices[(num_correct}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{:}\NormalTok{(num_correct}\OperatorTok{+}\NormalTok{num_incorrect)],}\DecValTok{1}\NormalTok{]}
+\NormalTok{    incorrect_y =}\StringTok{ }\NormalTok{data[sample_indices[(num_correct}\OperatorTok{+}\NormalTok{num_incorrect}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{:}\NormalTok{(num_correct}\OperatorTok{+}\DecValTok{2}\OperatorTok{*}\NormalTok{num_incorrect)],}\DecValTok{2}\OperatorTok{:}\KeywordTok{dim}\NormalTok{(data)[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{    incorrect_matches =}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\DataTypeTok{x=}\NormalTok{incorrect_x, }\DataTypeTok{y=}\NormalTok{incorrect_y, }\DataTypeTok{match =}\DecValTok{0}\NormalTok{)}
+\NormalTok{    sample =}\StringTok{ }\KeywordTok{rbind}\NormalTok{(correct_matches, incorrect_matches)}
+\NormalTok{  \}}
+\NormalTok{  sample[,}\DecValTok{1}\OperatorTok{:}\DecValTok{2}\NormalTok{]=}\StringTok{ }\KeywordTok{scale}\NormalTok{(sample[,}\DecValTok{1}\OperatorTok{:}\DecValTok{2}\NormalTok{], }\DataTypeTok{center =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{scale =} \OtherTok{FALSE}\NormalTok{)}
+  \KeywordTok{return}\NormalTok{(sample)}
+\NormalTok{\}}
+
+\NormalTok{s =}\StringTok{ }\KeywordTok{get_sample}\NormalTok{(df,precision, n)}
+\KeywordTok{plot}\NormalTok{(s}\OperatorTok{$}\NormalTok{x, s}\OperatorTok{$}\NormalTok{y,}\DataTypeTok{xlab =} \StringTok{'x'}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{'y'}\NormalTok{, }\DataTypeTok{main =} \StringTok{'Linked Sample and Fitted Line'}\NormalTok{ )}
+\NormalTok{fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s)}
+\KeywordTok{abline}\NormalTok{(fit, }\DataTypeTok{col =} \StringTok{'blue'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{b0_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{]}
+\NormalTok{b1_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{]}
+\KeywordTok{summary}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = y ~ x, data = s)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -6.3423 -0.7069  0.0122  0.7290  4.7753 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) -1.154e-16  3.882e-02    0.00        1    
+## x            1.933e+00  3.738e-02   51.71   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.227 on 998 degrees of freedom
+## Multiple R-squared:  0.7282, Adjusted R-squared:  0.7279 
+## F-statistic:  2674 on 1 and 998 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\KeywordTok{plot}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-3-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{confint}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                   2.5 %     97.5 %
+## (Intercept) -0.07616982 0.07616982
+## x            1.85958669 2.00628963
+\end{verbatim}
+
+A few things stand out:\\
+- Our estimate for \(\beta_1\) is below the true population parameter
+(\(2\)).\\
+- Even the 95\% confidence interval's upper bound is below the
+population. However, the QQ plot shows a heavy tailed distribution,
+which may widen the true interval.\\
+- The data scatter plot and residual plot show a few outliers, and the
+Scale-Location and Cook's Distance plot show a few potential problem
+points as well.
+
+Before we dive into corrections, let's first examine what's actually
+going on.
+
+\hypertarget{noise-layer-vs-signal-layer}{%
+\paragraph{Noise Layer vs Signal
+Layer}\label{noise-layer-vs-signal-layer}}
+
+When we add mismatched data to our sample, we're effectively layering on
+a random noise model (if we assume the false positives happen at random)
+which follows \(y_i = \epsilon', \epsilon'\sim N(0,5)\) which doesn't
+vary with \(x\). Below we'll plot the correct matches in grey, and the
+incorrect ones in green. The population trend is in red, while our
+fitted trend is in blue. The dotted green line represends the trend of
+the mismatched data. Expectedly, it's slope is near 0.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(s[s}\OperatorTok{$}\NormalTok{match}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{], s[s}\OperatorTok{$}\NormalTok{match}\OperatorTok{==}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{], }\DataTypeTok{pch=} \DecValTok{20}\NormalTok{, }\DataTypeTok{col =} \StringTok{'gray'}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{'x'}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{'y'}\NormalTok{, }\DataTypeTok{main =} \StringTok{'Plot of Correct and Incorrect Matches'}\NormalTok{)}
+\KeywordTok{points}\NormalTok{(s[s}\OperatorTok{$}\NormalTok{match}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{], s[s}\OperatorTok{$}\NormalTok{match}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{2}\NormalTok{], }\DataTypeTok{col =} \StringTok{'green'}\NormalTok{, }\DataTypeTok{pch =} \DecValTok{20}\NormalTok{)}
+\NormalTok{noise_fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(s[s}\OperatorTok{$}\NormalTok{match}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{2}\NormalTok{]}\OperatorTok{~}\StringTok{ }\NormalTok{s[s}\OperatorTok{$}\NormalTok{match}\OperatorTok{==}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{])}
+\KeywordTok{abline}\NormalTok{(b0, b1, }\DataTypeTok{col =} \StringTok{'red'}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(noise_fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{],noise_fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{], }\DataTypeTok{col =} \StringTok{'green'}\NormalTok{, }\DataTypeTok{lty=}\DecValTok{2}\NormalTok{)}
+\KeywordTok{abline}\NormalTok{(b0_hat,b1_hat, }\DataTypeTok{col =} \StringTok{'blue'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\hypertarget{bias}{%
+\subsubsection{Bias}\label{bias}}
+
+This noise has the effect of dampening the real signal, and leads to a
+bias where the coefficients are smaller in absolute value than they
+should be. You can think of this visually as the the green line rotating
+blue line from where it should be (the red line. This is also why
+centering all the variables helps), similar to how influential points
+can move the fitted line.
+
+We can see the systematic effect of this by simulating 1000 samples. The
+red line is again the population trend, and the blue lines are the
+result of each of the 500 runs.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ df}\OperatorTok{$}\NormalTok{x, }\DataTypeTok{y =}\NormalTok{ df}\OperatorTok{$}\NormalTok{y, }\DataTypeTok{pch =} \DecValTok{20}\NormalTok{, }\DataTypeTok{cex =} \FloatTok{.2}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{'x'}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{'y'}\NormalTok{, }\DataTypeTok{main =} \StringTok{'Results of 1000 Simulations'}\NormalTok{)}
+\NormalTok{simulations =}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{1000}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x)\{}
+\NormalTok{  s =}\StringTok{ }\KeywordTok{get_sample}\NormalTok{(df, precision, n)}
+\NormalTok{  fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s)}
+\NormalTok{  b0_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  b1_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{]}
+  \KeywordTok{abline}\NormalTok{(fit, }\DataTypeTok{col =} \KeywordTok{rgb}\NormalTok{(}\DataTypeTok{red =} \DecValTok{0}\NormalTok{, }\DataTypeTok{green =} \DecValTok{0}\NormalTok{, }\DataTypeTok{blue =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.03}\NormalTok{))}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(b0_hat,b1_hat))}
+  
+\NormalTok{\})}
+\KeywordTok{abline}\NormalTok{(b0, b1, }\DataTypeTok{col =} \StringTok{'red'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{c}\NormalTok{(}\KeywordTok{quantile}\NormalTok{(simulations[}\DecValTok{2}\NormalTok{,],.}\DecValTok{025}\NormalTok{),}\DataTypeTok{avg =} \KeywordTok{mean}\NormalTok{(simulations[}\DecValTok{2}\NormalTok{,]),}\KeywordTok{quantile}\NormalTok{(simulations[}\DecValTok{2}\NormalTok{,],.}\DecValTok{975}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     2.5%      avg    97.5% 
+## 1.828494 1.905044 1.979121
+\end{verbatim}
+
+Looking at the results, we see that the average \(\hat \beta_1\) was
+1.9050445, and majority of runs (992) were below the true parameter,
+indicating a bias in our estimator.
+
+This comes as no surprise given we've clearly adding values into our
+data which don't follow the true model. Since the number of mismatched
+records scales linearly with sample size, the bias remains constant no
+matter the sample size.
+
+\hypertarget{correcting-the-issue}{%
+\subsubsection{Correcting the Issue}\label{correcting-the-issue}}
+
+A biased estimator naturally leads to trying to determine what the bias
+is. We'll consider two scenarios, one where the number of false
+positives is unknown, and one where it isn't.
+
+\hypertarget{unknown-precision}{%
+\paragraph{Unknown Precision}\label{unknown-precision}}
+
+A much more likely scenario is that the precision is unknown, in which
+case the problem is like an outlier/influential point problems. Real
+outliers are hard to distinguish from false positives, and it is
+difficult to conduct any investigation into potential outliers, but
+that's the price you pay when linking data. We'll try a few standard
+approaches to this.
+
+\hypertarget{cooks-distance}{%
+\subparagraph{Cook's Distance}\label{cooks-distance}}
+
+Here we'll use Cook's distance to try to remove influential points. If
+we have some prior knowledge of the approximate precision, we can expect
+to remove a few dozen points. This method won't capture all the false
+positives since some will surely look in line with the trend, and
+therefore we will still have some bias. One possible approach, at least
+in this controlled example, could be to use the cutoff which yields the
+largest coefficient. Below we show the resulting estimates using various
+cutoffs (by removing fixed numbers of values instead of values over a
+threshold for simplicity), as well as the simulation results for the
+``best'' cutoff. Using this method, we're much closer to the true value
+than before, and our confidence intervals are capturing it as well.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cook =}\StringTok{ }\ControlFlowTok{function}\NormalTok{(cutoff) \{}
+\NormalTok{  cooks_simulations =}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{100}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x)\{}
+\NormalTok{    s =}\StringTok{ }\KeywordTok{get_sample}\NormalTok{(df, precision, n)}
+\NormalTok{    initial_fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s)}
+\NormalTok{    s_cook =}\StringTok{ }\NormalTok{s[}\KeywordTok{cooks.distance}\NormalTok{(initial_fit)}\OperatorTok{<=}\KeywordTok{sort}\NormalTok{(}\KeywordTok{cooks.distance}\NormalTok{(initial_fit))[cutoff],]}
+\NormalTok{    fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s_cook)}
+\NormalTok{    b0_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{]}
+\NormalTok{    b1_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{]}
+    \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(b0_hat,b1_hat, }\KeywordTok{confint}\NormalTok{(fit)[}\DecValTok{2}\NormalTok{,]))}
+\NormalTok{  \})}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(}
+    \KeywordTok{quantile}\NormalTok{(cooks_simulations[}\DecValTok{2}\NormalTok{,],.}\DecValTok{025}\NormalTok{), }
+    \DataTypeTok{avg =} \KeywordTok{mean}\NormalTok{(cooks_simulations[}\DecValTok{2}\NormalTok{,]),}
+    \KeywordTok{quantile}\NormalTok{(cooks_simulations[}\DecValTok{2}\NormalTok{,],.}\DecValTok{975}\NormalTok{),}
+    \KeywordTok{mean}\NormalTok{(cooks_simulations[}\DecValTok{3}\NormalTok{,]),}
+    \KeywordTok{mean}\NormalTok{(cooks_simulations[}\DecValTok{4}\NormalTok{,])))}
+\NormalTok{\}}
+\NormalTok{estimates =}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{900}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10}\NormalTok{), cook)}
+\KeywordTok{colnames}\NormalTok{(estimates) =}\KeywordTok{seq}\NormalTok{(}\DecValTok{900}\NormalTok{,}\DecValTok{1000}\NormalTok{,}\DecValTok{10}\NormalTok{)}
+\NormalTok{estimates}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            900      910      920      930      940      950      960      970
+## 2.5%  1.882388 1.865735 1.883969 1.891749 1.897250 1.890514 1.901435 1.897293
+## avg   1.954220 1.949533 1.955504 1.961064 1.961918 1.967690 1.956973 1.970439
+## 97.5% 2.029624 2.028338 2.032640 2.027997 2.034646 2.035609 2.033966 2.032973
+##       1.892422 1.887279 1.892852 1.897640 1.898458 1.903211 1.892339 1.904385
+##       2.016018 2.011787 2.018155 2.024488 2.025378 2.032169 2.021607 2.036494
+##            980      990     1000
+## 2.5%  1.902518 1.897549 1.827580
+## avg   1.963871 1.965772 1.904946
+## 97.5% 2.020035 2.023620 1.975942
+##       1.897277 1.897613 1.831256
+##       2.030465 2.033930 1.978635
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ df}\OperatorTok{$}\NormalTok{x, }\DataTypeTok{y =}\NormalTok{ df}\OperatorTok{$}\NormalTok{y, }\DataTypeTok{pch =} \DecValTok{20}\NormalTok{, }\DataTypeTok{cex =} \FloatTok{.2}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{'x'}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{'y'}\NormalTok{, }\DataTypeTok{main =} \StringTok{"Results of 1000 Simulations with Cook's distance correction"}\NormalTok{)}
+\NormalTok{cooks_simulations =}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{1000}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x)\{}
+\NormalTok{  s =}\StringTok{ }\KeywordTok{get_sample}\NormalTok{(df, precision, n)}
+\NormalTok{  initial_fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s)}
+\NormalTok{  s_cook =}\StringTok{ }\NormalTok{s[}\KeywordTok{cooks.distance}\NormalTok{(initial_fit)}\OperatorTok{<=}\KeywordTok{sort}\NormalTok{(}\KeywordTok{cooks.distance}\NormalTok{(initial_fit))[}\DecValTok{980}\NormalTok{],]}
+\NormalTok{  fit =}\StringTok{ }\KeywordTok{lm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s_cook)}
+\NormalTok{  b0_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  b1_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{]}
+  \KeywordTok{abline}\NormalTok{(fit, }\DataTypeTok{col =} \KeywordTok{rgb}\NormalTok{(}\DataTypeTok{red =} \DecValTok{0}\NormalTok{, }\DataTypeTok{green =} \DecValTok{0}\NormalTok{, }\DataTypeTok{blue =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.03}\NormalTok{))}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(b0_hat,b1_hat))}
+\NormalTok{\})}
+\KeywordTok{abline}\NormalTok{(b0, b1, }\DataTypeTok{col =} \StringTok{'red'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-7-1.pdf}
+\#\#\#\#\# Robust Regression Next we'll use robust regression,
+implemented as \texttt{rlm()} in R (versus ordinary least squares used
+in \texttt{lm()}). Since we're still using all the data, we're still
+expecting to generally underestimate the mean. Similar to Cook's
+distance, we're doing much better than OLS and with confidence intervals
+beginning to capture the true parameter. A similar approach would be
+weighted least squares. My suspicion is that these approaches are
+slightly worse than the previous approach because they maintain all
+false positives and try to minimize their effect, as opposed to
+attemping to remove the false positives completely. In practice, I'm not
+sure there's a meaningful difference.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ df}\OperatorTok{$}\NormalTok{x, }\DataTypeTok{y =}\NormalTok{ df}\OperatorTok{$}\NormalTok{y, }\DataTypeTok{pch =} \DecValTok{20}\NormalTok{, }\DataTypeTok{cex =} \FloatTok{.2}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{'x'}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{'y'}\NormalTok{, }\DataTypeTok{main =} \StringTok{'Results of 1000 Simulations with Robust Regression'}\NormalTok{)}
+\NormalTok{robust_simulations =}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}\KeywordTok{seq}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{1000}\NormalTok{), }\ControlFlowTok{function}\NormalTok{(x)\{}
+\NormalTok{  s =}\StringTok{ }\KeywordTok{get_sample}\NormalTok{(df, precision, n)}
+\NormalTok{  fit =}\StringTok{ }\KeywordTok{rlm}\NormalTok{(y}\OperatorTok{~}\NormalTok{x, s)}
+\NormalTok{  b0_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  b1_hat =}\StringTok{ }\NormalTok{fit}\OperatorTok{$}\NormalTok{coefficients[}\DecValTok{2}\NormalTok{]}
+  \KeywordTok{abline}\NormalTok{(fit, }\DataTypeTok{col =} \KeywordTok{rgb}\NormalTok{(}\DataTypeTok{red =} \DecValTok{0}\NormalTok{, }\DataTypeTok{green =} \DecValTok{0}\NormalTok{, }\DataTypeTok{blue =} \FloatTok{0.5}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.03}\NormalTok{))}
+  \KeywordTok{return}\NormalTok{(}\KeywordTok{c}\NormalTok{(b0_hat,b1_hat))}
+\NormalTok{\})}
+\KeywordTok{abline}\NormalTok{(b0, b1, }\DataTypeTok{col =} \StringTok{'red'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{matching_regression_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{c}\NormalTok{(}\KeywordTok{quantile}\NormalTok{(robust_simulations[}\DecValTok{2}\NormalTok{,],.}\DecValTok{025}\NormalTok{),}\DataTypeTok{avg =} \KeywordTok{mean}\NormalTok{(robust_simulations[}\DecValTok{2}\NormalTok{,]) ,}\KeywordTok{quantile}\NormalTok{(robust_simulations[}\DecValTok{2}\NormalTok{,],.}\DecValTok{975}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     2.5%      avg    97.5% 
+## 1.894157 1.959673 2.027562
+\end{verbatim}
+
+\hypertarget{known-precision}{%
+\paragraph{Known Precision}\label{known-precision}}
+
+If, somehow, the precision is known and so the number of false positives
+can be determined, there is a simple correction that can be done. By
+dividing the estimates by the precision, we get the right answer. This
+intuitively makes sense because we've ``dampened'' the true signal with
+the random noise, and if we know how severe the noise is, we can scale
+the signal to it's real value. This comes at the expense of a wider
+confidence interval, as the standard errors are also divided by 0.95.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{c}\NormalTok{(}\KeywordTok{quantile}\NormalTok{(simulations[}\DecValTok{2}\NormalTok{,]}\OperatorTok{/}\NormalTok{precision,.}\DecValTok{025}\NormalTok{), }\DataTypeTok{avg=}\KeywordTok{mean}\NormalTok{(simulations[}\DecValTok{2}\NormalTok{,])}\OperatorTok{/}\NormalTok{precision,}\KeywordTok{quantile}\NormalTok{(simulations[}\DecValTok{2}\NormalTok{,]}\OperatorTok{/}\NormalTok{precision,.}\DecValTok{975}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     2.5%      avg    97.5% 
+## 1.924731 2.005310 2.083285
+\end{verbatim}
+
+\hypertarget{theory-and-analysis}{%
+\paragraph{Theory and Analysis}\label{theory-and-analysis}}
+
+\hypertarget{high-dimensions}{%
+\paragraph{High Dimensions}\label{high-dimensions}}
+
+\hypertarget{quadratic-example}{%
+\paragraph{Quadratic Example}\label{quadratic-example}}
+
+\hypertarget{upside---small-effects-not-wrong-effects}{%
+\paragraph{Upside - small effects, not wrong
+effects}\label{upside---small-effects-not-wrong-effects}}
+
+\hypertarget{effective-sample-size}{%
+\paragraph{Effective Sample Size}\label{effective-sample-size}}
+
+\end{document}
